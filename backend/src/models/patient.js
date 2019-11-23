@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
+const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const patientSchema = new mongoose.Schema({
-    ID: {
+    id: {
         type: Number,
         unique: true
     },
@@ -13,8 +14,13 @@ const patientSchema = new mongoose.Schema({
     },
     phone: {
         type: String
+    },
+    email: {
+        type: String
     }
 });
+
+patientSchema.plugin(AutoIncrement, {inc_field: 'id'});
 
 const Patient = mongoose.model('Patient', patientSchema);
 
