@@ -2,23 +2,30 @@
 class PatientService {
 
     static save(patient) {
+        return new Promise((resolve, reject) => {
+            let url = 'http://localhost:3000/patients';
 
-        let url = 'http://localhost:3000/patients';
+            if (patient.id) {
+                url += '/' + patient.id
+            }
 
-        if (patient.id) {
-            url += '/' + patient.id
-        }
+            fetch(url,
+                {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    method: "POST",
+                    body: JSON.stringify(patient)
+                }).then((response) => {
+                    if (response.status === 200) {
+                        response.json().then(response => resolve(response));
+                    } else {
+                        reject(response.status);
+                    }
 
-        fetch(url,
-            {
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                method: "POST",
-                body: JSON.stringify(patient)
-            }).then((response) => {
-            })
+                })
+        })
     }
 
     static searchForPatient(query) {
@@ -55,7 +62,6 @@ class PatientService {
                     },
                 }).then((response) => {
                     response.json().then(patient => {
-                        patient = patient[0];
                         patient.dob = new Date(patient.dob);
                         resolve(patient);
                     });

@@ -3,34 +3,52 @@ import PatientService from '../../services/PatientService';
 import NotificationService from '../../services/NotificationService';
 import moment from 'moment';
 
+import MedicationList from '../MedicationList/MedicationList';
+
 class PatientForm extends Component {
+    /**
+     * Constructor
+     */
     constructor() {
         super()
 
         this.state = { formControls: {} };
         this.submit = this.submit.bind(this);
+        this.updatedMedicationList = this.updatedMedicationList.bind(this);
 
     }
+
+    /**
+     * Set up component
+     */
     componentDidMount() {
         let id = this.props.match.params.id;
-        this.setState({ patientEdited: id })
+        if (!id) {
+            this.resetForm();
+        } else {
 
-        PatientService.getPatientById(id).then(patient => {
-            console.log(patient.dob)
+            this.setState({ patientEdited: id })
 
-            this.setState({
-                formControls: {
-                    name: patient.name,
-                    email: patient.email,
-                    phone: patient.phone,
-                    dob: moment(patient.dob).format('YYYY-MM-DD')
+            PatientService.getPatientById(id).then(patient => {
+
+                this.setState({
+                    formControls: {
+                        name: patient.name,
+                        email: patient.email,
+                        phone: patient.phone,
+                        dob: moment(patient.dob).format('YYYY-MM-DD'),
+                        medications: []
 
 
-                }
+                    }
+                });
             });
-        });
+        }
     }
 
+    /**
+     * The function which looks after all changes in the form and saves it in the state.
+     */
     changeHandler = event => {
 
         const name = event.target.name;
@@ -39,6 +57,11 @@ class PatientForm extends Component {
         this.setState({ formControls: { ...this.state.formControls, [name]: value } })
     }
 
+    /**
+     * Handles saving the patient.
+     * 
+     * @param {*} event 
+     */
     async submit(event) {
         event.preventDefault();
 
@@ -48,12 +71,22 @@ class PatientForm extends Component {
             patient.id = this.state.patientEdited;
         }
 
-        PatientService.save(patient);
-        NotificationService.success('User saved');
+        patient.medicatios = JSON.stringify(patient.medications);
+        PatientService.save(patient).then(savedPatient => {
+            NotificationService.success('Patient saved');
 
-        this.resetForm();
+            if (!this.state.patientEdited) {
+                this.props.history.push('/edit-user/' + savedPatient.id)
+            }
+        }).catch(() => {
+            NotificationService.error('Something went wrong.');
+        });
     }
 
+
+    /**
+     * Resets all inputs in form
+     */
     resetForm() {
         this.setState({
             formControls: {
@@ -65,6 +98,13 @@ class PatientForm extends Component {
         })
     }
 
+    updatedMedicationList(medications) {
+        this.setState({ formControls: { ...this.state.formControls, medications: medications } })
+    }
+
+    /**
+     * Shows the form
+     */
     render() {
         let header;
         if (this.state.patientEdited) {
@@ -75,7 +115,7 @@ class PatientForm extends Component {
 
         return (
             <div>
-                <h1>{header}</h1>
+                <h1>{header}  {this.state.formControls.name}</h1>
                 <form>
                     <p>
                         Navn:<br />
@@ -114,8 +154,11 @@ class PatientForm extends Component {
                             value={this.state.formControls.phone}
                             onChange={this.changeHandler}
                             required
+                            patterns="\d\d\d\d\d\d\d\d"
                         />
                     </p>
+
+                    <MedicationList onUpdate={this.updatedMedicationList} />
 
                     <p>
                         <input type="submit" onClick={this.submit} value="Save" />

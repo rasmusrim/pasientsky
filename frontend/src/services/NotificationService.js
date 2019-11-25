@@ -6,7 +6,7 @@ class NotificationService {
     static success(message) {
         store.addNotification({
             message: message,
-            type: 'default',                         // 'default', 'success', 'info', 'warning'
+            type: 'success',                         // 'default', 'success', 'info', 'warning'
             container: 'bottom-left',                // where to position the notifications
             animationIn: ["animated", "fadeIn"],     // animate.css classes that's applied
             animationOut: ["animated", "fadeOut"],   // animate.css classes that's applied
@@ -16,6 +16,21 @@ class NotificationService {
         })
 
     }
+
+    static error(message) {
+        store.addNotification({
+            message: message,
+            type: 'warning',                         // 'default', 'success', 'info', 'warning'
+            container: 'bottom-left',                // where to position the notifications
+            animationIn: ["animated", "fadeIn"],     // animate.css classes that's applied
+            animationOut: ["animated", "fadeOut"],   // animate.css classes that's applied
+            dismiss: {
+                duration: 3000
+            }
+        })
+
+    }
+
 }
 
 export default NotificationService;

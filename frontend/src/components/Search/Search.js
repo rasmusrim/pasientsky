@@ -5,8 +5,6 @@ import PatientService from '../../services/PatientService';
 import NotificationService from '../../services/NotificationService';
 import Moment from 'react-moment';
 
-import { useHistory } from "react-router-dom";
-
 import { confirmAlert } from 'react-confirm-alert'; // Import
 import 'react-confirm-alert/src/react-confirm-alert.css';
 
@@ -135,6 +133,7 @@ class Search extends Component {
                 <table>
                     <thead>
                         <tr>
+                            <td>Actions:</td>
                             <td>Name:</td>
                             <td>Email:</td>
                             <td>Phone:</td>
