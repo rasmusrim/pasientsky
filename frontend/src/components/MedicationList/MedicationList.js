@@ -2,6 +2,9 @@ import React, { Component } from 'react';
 import MedicationService from '../../services/MedicationService';
 
 class MedicationList extends Component {
+    /**
+     * Constructor
+     */
     constructor() {
         super();
         this.state = {
@@ -13,11 +16,24 @@ class MedicationList extends Component {
         this.findMedication = this.findMedication.bind(this);
         this.changeHandler = this.changeHandler.bind(this);
         this.addMedication = this.addMedication.bind(this);
+        this.removeMedication = this.removeMedication.bind(this);
     }
 
-
-    componentDidUpdate() {
+    /**
+     * ComponentDidUpdate.
+     * 
+     * @param {*} prevProps 
+     * @param {*} prevState 
+     * @param {*} snapshot 
+     */
+    componentDidUpdate(prevProps) {
         this.medicationUpdateTrigger = this.props.onUpdate;
+
+        if (this.props.medications && (this.props.medications !== prevProps.medications)) {
+            this.setState({ medications: this.props.medications })
+        }
+
+
     }
 
     /**
@@ -30,11 +46,17 @@ class MedicationList extends Component {
         this.setState({ [name]: value })
     }
 
+    /**
+     * Uses the MedicationService to search for medications.
+     */
     async findMedication() {
         let results = await MedicationService.search(this.state.query)
         this.setState({ searchResults: results })
     }
 
+    /**
+     * Adds the selected medication to the list of medications.
+     */    
     addMedication() {
         let parts = this.state.searchResultsList.split("|");
         let id = parts[0];
@@ -43,17 +65,61 @@ class MedicationList extends Component {
         let medications = this.state.medications;
         medications.push({ id: id, name: name });
 
+        medications = this.sortMedications(medications);
         this.setState({ medications: medications });
+        
         this.medicationUpdateTrigger(medications);
     }
 
+    /**
+     * Removes a medication with a specific ID from the list.
+     * 
+     * @param {String} id The ID of the medication to be removed
+     */
+    removeMedication(id) {
+        let medications = this.state.medications;
+
+        medications = medications.filter((medication) => {
+            if (medication.id === id) {
+                return false;
+            } else {
+                return true;
+            }
+
+
+        })
+
+        this.setState({ medications: medications });
+        this.medicationUpdateTrigger(medications);
+
+    }
+
+    /**
+     * Sorts medications alphabetically
+     * 
+     * @param {Array} medications 
+     */
+    sortMedications(medications) {
+
+        medications = medications.sort(function(x, y) {
+            return x.name.localeCompare(y.name);
+        });
+
+        return medications;
+
+        
+    }
+
+    /**
+     * Renders component
+     */
     render() {
         let searchResults = this.state.searchResults.map((item) =>
             <option value={item.id + "|" + item.productName} key={item.id}>{item.productName}</option>
         );
 
         let selectedMedications = this.state.medications.map((medication) =>
-            <li>{medication.name}</li>
+            <li key={medication.id}>{medication.name} <input type="button" value="Remove" onClick={() => this.removeMedication(medication.id)} /></li>
         );
 
 

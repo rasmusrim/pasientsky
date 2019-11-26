@@ -1,6 +1,11 @@
 
 class PatientService {
 
+    /**
+     * Saves a patient.
+     * 
+     * @param {Patient} patient 
+     */
     static save(patient) {
         return new Promise((resolve, reject) => {
             let url = 'http://localhost:3000/patients';
@@ -8,6 +13,10 @@ class PatientService {
             if (patient.id) {
                 url += '/' + patient.id
             }
+            
+            let patientClone = JSON.parse(JSON.stringify(patient))
+
+            patientClone.medications = JSON.stringify(patientClone.medications);
 
             fetch(url,
                 {
@@ -16,18 +25,23 @@ class PatientService {
                         'Content-Type': 'application/json'
                     },
                     method: "POST",
-                    body: JSON.stringify(patient)
+                    body: JSON.stringify(patientClone)
                 }).then((response) => {
                     if (response.status === 200) {
                         response.json().then(response => resolve(response));
                     } else {
-                        reject(response.status);
+                        response.json().then(response => reject(response));
                     }
 
                 })
         })
     }
 
+    /**
+     * Searches for patients matching the query.
+     * 
+     * @param {String} query 
+     */
     static searchForPatient(query) {
         return new Promise((resolve, reject) => {
             fetch('http://localhost:3000/patients?query=' + query,
@@ -39,6 +53,8 @@ class PatientService {
                     response.json().then(patients => {
                         patients = patients.map((patient) => {
                             patient.dob = new Date(patient.dob);
+                            patient.medications = JSON.parse(patient.medications);
+
                             return patient;
 
                         });
@@ -53,6 +69,11 @@ class PatientService {
         });
     }
 
+    /**
+     * Gets the patient with the given ID.
+     * 
+     * @param {number} id 
+     */
     static getPatientById(id) {
         return new Promise((resolve, reject) => {
             fetch('http://localhost:3000/patients/' + id,
@@ -63,6 +84,7 @@ class PatientService {
                 }).then((response) => {
                     response.json().then(patient => {
                         patient.dob = new Date(patient.dob);
+                        patient.medications = JSON.parse(patient.medications);
                         resolve(patient);
                     });
                 });
@@ -73,6 +95,11 @@ class PatientService {
 
     }
 
+    /**
+     * Deletes the patient with the given ID.
+     * 
+     * @param {number} id 
+     */
     static delete(id) {
         return new Promise((resolve, reject) => {
 

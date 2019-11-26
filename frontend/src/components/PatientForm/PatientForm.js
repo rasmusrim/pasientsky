@@ -12,9 +12,20 @@ class PatientForm extends Component {
     constructor() {
         super()
 
-        this.state = { formControls: {} };
+        this.state = {
+            formControls: {
+                medications: [],
+                name: '',
+                email: '',
+                dob: '',
+                phone: ''
+            }
+        };
+
         this.submit = this.submit.bind(this);
         this.updatedMedicationList = this.updatedMedicationList.bind(this);
+
+        this.form = React.createRef();
 
     }
 
@@ -30,14 +41,13 @@ class PatientForm extends Component {
             this.setState({ patientEdited: id })
 
             PatientService.getPatientById(id).then(patient => {
-
                 this.setState({
                     formControls: {
                         name: patient.name,
                         email: patient.email,
                         phone: patient.phone,
                         dob: moment(patient.dob).format('YYYY-MM-DD'),
-                        medications: []
+                        medications: patient.medications
 
 
                     }
@@ -48,8 +58,10 @@ class PatientForm extends Component {
 
     /**
      * The function which looks after all changes in the form and saves it in the state.
+     * 
+     * @param {Event} event 
      */
-    changeHandler = event => {
+    changeHandler(event) {
 
         const name = event.target.name;
         const value = event.target.value;
@@ -60,27 +72,29 @@ class PatientForm extends Component {
     /**
      * Handles saving the patient.
      * 
-     * @param {*} event 
+     * @param {Event} event 
      */
     async submit(event) {
         event.preventDefault();
 
-        let patient = this.state.formControls;
+        if (this.form.current.reportValidity()) {
 
-        if (this.state.patientEdited) {
-            patient.id = this.state.patientEdited;
-        }
+            let patient = this.state.formControls;
 
-        patient.medicatios = JSON.stringify(patient.medications);
-        PatientService.save(patient).then(savedPatient => {
-            NotificationService.success('Patient saved');
-
-            if (!this.state.patientEdited) {
-                this.props.history.push('/edit-user/' + savedPatient.id)
+            if (this.state.patientEdited) {
+                patient.id = this.state.patientEdited;
             }
-        }).catch(() => {
-            NotificationService.error('Something went wrong.');
-        });
+
+            PatientService.save(patient).then(savedPatient => {
+                NotificationService.success('Patient saved');
+
+                if (!this.state.patientEdited) {
+                    this.props.history.push('/edit-user/' + savedPatient.id)
+                }
+            }).catch((response) => {
+                NotificationService.error('Something went wrong: ' + response.errors[0].msg);
+            });
+        }
     }
 
 
@@ -93,11 +107,17 @@ class PatientForm extends Component {
                 name: '',
                 email: '',
                 date: '',
-                phone: ''
+                phone: '',
+                medications: []
             }
         })
     }
 
+    /**
+     * Callback function from MedicationsList. Called when medications are updated from child component.
+     * 
+     * @param {Array} medications 
+     */
     updatedMedicationList(medications) {
         this.setState({ formControls: { ...this.state.formControls, medications: medications } })
     }
@@ -116,7 +136,7 @@ class PatientForm extends Component {
         return (
             <div>
                 <h1>{header}  {this.state.formControls.name}</h1>
-                <form>
+                <form ref={this.form}>
                     <p>
                         Navn:<br />
                         <input type="text"
@@ -149,16 +169,16 @@ class PatientForm extends Component {
 
                     <p>
                         Telefonnummer:<br />
-                        <input type="number"
+                        <input type="text"
                             name="phone"
                             value={this.state.formControls.phone}
                             onChange={this.changeHandler}
                             required
-                            patterns="\d\d\d\d\d\d\d\d"
+                            pattern="\d{8}"
                         />
                     </p>
 
-                    <MedicationList onUpdate={this.updatedMedicationList} />
+                    <MedicationList onUpdate={this.updatedMedicationList} medications={this.state.formControls.medications} />
 
                     <p>
                         <input type="submit" onClick={this.submit} value="Save" />

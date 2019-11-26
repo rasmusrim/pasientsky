@@ -10,6 +10,9 @@ import 'react-confirm-alert/src/react-confirm-alert.css';
 
 class Search extends Component {
 
+    /**
+     * Constructor
+     */
     constructor() {
         super();
         this.state = {
@@ -22,11 +25,15 @@ class Search extends Component {
         this.doSearch = this.doSearch.bind(this);
     }
 
+    /**
+     * Handles changes in the query input field and triggers a search if no further changes are made within 1000ms.
+     * 
+     * @param {Event} event 
+     */    
     queryChanged(event) {
         this.setState({ showLoader: true });
 
         const query = event.target.value;
-        console.log(query);
 
         this.setState({ query: query });
 
@@ -40,6 +47,9 @@ class Search extends Component {
 
     }
 
+    /**
+     * Searches for patients matching the query.
+     */
     doSearch() {
         if (!this.state.query) {
             this.setState({ showLoader: false, patients: [] });
@@ -52,7 +62,11 @@ class Search extends Component {
         }
     }
 
-
+    /**
+     * Delete a patient.
+     * 
+     * @param {number} id 
+     */
     delete(id) {
         let patient = this.state.patients.find(element => element.id === id);
 
@@ -81,12 +95,21 @@ class Search extends Component {
 
     }
 
+    /**
+     * Opens up the edit patient form for the patient with a given ID.
+     * 
+     * @param {number} id 
+     */
     edit(id) {
         this.props.history.push('/edit-user/' + id)
     }
 
+    /**
+     * Renders the component.
+     */
     render() {
-        var items;
+        let items;
+        let warning;
 
         if (this.state.patients.length > 0) {
             items = this.state.patients.map((item) =>
@@ -107,7 +130,7 @@ class Search extends Component {
 
             );
         } else {
-            items = 'No patients were found.'
+            warning = 'No patients were found.'
         }
 
         let loader;
@@ -141,6 +164,7 @@ class Search extends Component {
                         </tr>
                     </thead>
                     <tbody>
+                        <tr><td>{warning}</td></tr>
                         {items}
                     </tbody>
                 </table>

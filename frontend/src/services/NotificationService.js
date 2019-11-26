@@ -3,6 +3,12 @@ import 'react-notifications-component/dist/theme.css';
 import 'animate.css';
 
 class NotificationService {
+    
+    /**
+     * Shows a success notification with the given message
+     * 
+     * @param {String} message 
+     */
     static success(message) {
         store.addNotification({
             message: message,
@@ -17,6 +23,11 @@ class NotificationService {
 
     }
 
+    /**
+     * Shows an error notification with the given message
+     * 
+     * @param {String} message 
+     */
     static error(message) {
         store.addNotification({
             message: message,
