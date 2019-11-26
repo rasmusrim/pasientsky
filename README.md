@@ -2,7 +2,7 @@
 
 ## Prerequisites
 - A mongoDB server running on localhost port 27017. 
-- You need node. I used version 13.2.0.
+- Node. I used version 13.2.0.
 
 ## Setting up
 Run the following commands:
