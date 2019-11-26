@@ -14,14 +14,17 @@ Run the following commands:
     cd ..
 
 ## Starting 
-Run the following commands:
+Run the following commands in two separate terminal windows:
 
+### Terminal 1
     cd backend
-    npm run start &
-    cd ../frontend
-    npm run start &
+    npm run start
+    
+### Terminal 2
+    cd frontend
+    npm run start
 
-Accept port 3001 for frontend. Then point your browser towards http://localhost:3001.
+Accept port other than 3000 for frontend. Then point your browser towards the URL in terminal 2.
 
 ## Warnings
 Developed and tested in Firefox only.
