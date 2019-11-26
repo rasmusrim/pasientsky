@@ -9,13 +9,16 @@ const patientSchema = new mongoose.Schema({
     name: {
         type: String
     },
-    birthday: { 
+    dob: { 
         type: Date
     },
     phone: {
         type: String
     },
     email: {
+        type: String
+    },
+    medications: {
         type: String
     }
 });

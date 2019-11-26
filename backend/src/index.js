@@ -24,7 +24,22 @@ connectDb().then(async () => {
 
 app.post('/patients', PatientController.getPostValidation(), async (req, res) => {
   PatientController.post(req, res);
+});
 
+app.post('/patients/:id', PatientController.getPostValidation(), async (req, res) => {
+  PatientController.post(req, res);
 });
 
 
+app.get('/patients', async (req, res) => {
+  PatientController.get(req, res);
+});
+
+app.get('/patients/:id', async (req, res) => {
+  PatientController.getOne(req, res);
+});
+
+
+app.delete('/patients', async (req, res) => {
+  PatientController.delete(req, res);
+});
