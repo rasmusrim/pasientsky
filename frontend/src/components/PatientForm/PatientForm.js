@@ -24,6 +24,7 @@ class PatientForm extends Component {
 
         this.submit = this.submit.bind(this);
         this.updatedMedicationList = this.updatedMedicationList.bind(this);
+        this.changeHandler = this.changeHandler.bind(this);
 
         this.form = React.createRef();
 
